@@ -154,14 +154,17 @@ abstract class PickScrollView<T> : SimpleView {
                     moveLengthMax = sumWidth - w + ((w / 2 - itemW / 2).coerceAtLeast(0f))
                 }
             }
-            val sumW = moveLengthMax + moveLengthMin.absoluteValue + width
+            val sumW = moveLengthMax + moveLengthMin.absoluteValue + w
             mMaskBitmap = Bitmap.createBitmap(sumW.toInt(), height, Bitmap.Config.ARGB_8888)
             mMaskBitmap?.let {
                 mMaskCanvas = Canvas(it)
                 mMaskingPaint?.let {
                     mMaskCanvas?.let {
-                        it.drawColor(Color.TRANSPARENT)
-                        it.drawRect(width / 4f, 0f, 3 * width / 4f, height * 1f, mMaskingPaint)
+                        if (orientation == ORIENTATION_HORIZONTAL) {
+                            it.drawRect(width / 4f, 0f, 3 * width / 4f, height * 1f, mMaskingPaint)
+                        } else {
+                            it.drawRect(0f, height / 4f, width * 1f, 3 * height / 4f, mMaskingPaint)
+                        }
                     }
                 }
             }
@@ -189,7 +192,7 @@ abstract class PickScrollView<T> : SimpleView {
             if (sumWidth - moveLength > w) continue
             sumWidth += itemW + margin
             if (sumWidth < moveLength) {
-
+                Log.d("日志", "onDraw: ")
             } else {
                 getNearIndicatorPosition()?.let {
                     val offset =
@@ -444,10 +447,10 @@ abstract class PickScrollView<T> : SimpleView {
     }
 
 
-
     init {
         this.doOnLayout {
-            indicatorPosition = if(orientation == ORIENTATION_HORIZONTAL) width / 2f else height/2f
+            indicatorPosition =
+                if (orientation == ORIENTATION_HORIZONTAL) width / 2f else height / 2f
         }
         positionAnimator.addUpdateListener {
             var animatedValue = it.animatedValue

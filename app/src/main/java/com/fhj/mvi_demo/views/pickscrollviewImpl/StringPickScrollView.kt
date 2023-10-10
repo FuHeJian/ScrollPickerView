@@ -36,13 +36,13 @@ class StringPickScrollView : PickScrollView<String> {
 
     init {
         orientation = ORIENTATION_VERTICAL
+        showItemNum = 5
         paint.apply {
             isAntiAlias = true
-            color = Color.BLACK
+            color = Color.WHITE
             textSize = 50f
         }
         data = arrayListOf("1", "2", "3", "4", "5", "6", "7", "8", "9")
-        selectPosition(5, false)
         mListener = object : SelectListener<String> {
             override fun onSelect(position: Int, item: String) {
                 Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
@@ -72,7 +72,7 @@ class StringPickScrollView : PickScrollView<String> {
         position: Int,
         nearSelectedIndex: Int
     ) {
-        val rect = Rect()
+        val rect = rectCache
         when (nearSelectedIndex) {
             0 -> {
                 paint.color = Color.GREEN
@@ -83,7 +83,7 @@ class StringPickScrollView : PickScrollView<String> {
             }
 
             else -> {
-                paint.color = Color.BLACK
+                paint.color = Color.LTGRAY
             }
         }
         paint.getTextBounds(item, 0, item.length, rect)
