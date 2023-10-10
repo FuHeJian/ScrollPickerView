@@ -6,7 +6,6 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
 import com.fhj.mvi_demo.R
 import com.fhj.mvi_demo.views.PickScrollView
 

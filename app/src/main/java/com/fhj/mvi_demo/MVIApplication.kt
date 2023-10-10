@@ -2,7 +2,6 @@ package com.fhj.mvi_demo
 
 import android.app.Application
 import com.airbnb.mvrx.Mavericks
-import com.airbnb.mvrx.MavericksView
 
 /**
 @author: fuhejian

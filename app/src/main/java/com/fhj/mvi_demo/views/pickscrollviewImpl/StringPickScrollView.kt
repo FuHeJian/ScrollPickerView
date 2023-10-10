@@ -5,9 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.provider.CalendarContract.Colors
 import android.util.AttributeSet
-import android.util.Log
 import android.widget.Toast
 import com.fhj.mvi_demo.views.PickScrollView
 
@@ -37,7 +35,7 @@ class StringPickScrollView : PickScrollView<String> {
     constructor(context: Context) : this(context, null, 0, 0)
 
     init {
-        orientation = ORIENTATION_HORIZONTAL
+        orientation = ORIENTATION_VERTICAL
         paint.apply {
             isAntiAlias = true
             color = Color.BLACK
@@ -60,7 +58,12 @@ class StringPickScrollView : PickScrollView<String> {
 
     override fun getValueWidth(position: Int) = paint.measureText(data.get(position))
 
-    override fun getValueHeight(position: Int) = 0f
+    val rectCache = Rect()
+    override fun getValueHeight(position: Int):Float {
+        var item = data.get(position)
+        paint.getTextBounds(item, 0, item.length,rectCache)
+        return rectCache.height().toFloat()
+    }
 
     override fun drawItem(
         canvas: Canvas,

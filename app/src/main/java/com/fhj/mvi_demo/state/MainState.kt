@@ -1,8 +1,5 @@
 package com.fhj.mvi_demo.state
 
-import android.graphics.drawable.Drawable
-import android.view.ViewGroup
-import android.widget.ImageView
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.PersistState
 

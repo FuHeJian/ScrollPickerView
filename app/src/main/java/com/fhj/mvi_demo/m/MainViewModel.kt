@@ -1,8 +1,6 @@
 package com.fhj.mvi_demo.m
 
-import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModel
-import com.airbnb.mvrx.MavericksViewModelConfigFactory
 import com.fhj.mvi_demo.BaseActivity
 import com.fhj.mvi_demo.state.MainState
 import com.fhj.mvi_demo.state.StateData

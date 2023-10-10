@@ -12,12 +12,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewParent
 import android.view.animation.Interpolator
 import android.widget.OverScroller
 import androidx.core.view.doOnLayout
-import androidx.core.view.doOnNextLayout
 import kotlin.math.absoluteValue
 
 /**
@@ -65,24 +63,13 @@ abstract class PickScrollView<T> : SimpleView {
 
     var currentPosition = -1
 
-    init {
-        this.doOnLayout {
-            indicatorPosition = width / 2f
+    var orientation: Int = ORIENTATION_HORIZONTAL
+        set(value) {
+            field = value
+            moveLengthMax = 1f
+            invalidate()
         }
-        positionAnimator.addUpdateListener {
-            var animatedValue = it.animatedValue
-            if (animatedValue is Float) {
-                moveLength = animatedValue
-                invalidate()
-            }
-        }
-        mPaint = getPorterDuffXferPaint()
-        mMaskingPaint.isAntiAlias = true
-        mMaskingPaint.color = Color.GREEN
-        if (enableInitializeNotifySelectedItem) {
-            selectPosition(0, false)
-        }
-    }
+    var currentScrollOrientation: Int = 0;
 
     /**
      * 要绘制的内容
@@ -90,10 +77,13 @@ abstract class PickScrollView<T> : SimpleView {
     fun getValue(position: Int) = data.get(position)
 
     /**
-     * 返回绘制的宽度
+     * 返回绘制该Item的宽度，只会在水平滑动时调用
      */
     abstract fun getValueWidth(position: Int): Float
 
+    /**
+     * 返回绘制该Item的高度，只会在竖直滑动时调用
+     */
     abstract fun getValueHeight(position: Int): Float
 
     /**
@@ -135,12 +125,17 @@ abstract class PickScrollView<T> : SimpleView {
 
         val size = getValueSize()
         var sumWidth = 0f
-        var w = width
+        var w = if (orientation == ORIENTATION_HORIZONTAL) width else height
         val isRefreshDataPosition = dataPosition.isEmpty()
 
         if (moveLengthMax == 1f) {
+            indicatorPosition =
+                if (orientation == ORIENTATION_HORIZONTAL) width / 2f else height / 2f
             for (i in 0 until size) {
-                val itemW = getValueWidth(i)
+                val itemW =
+                    if (orientation == ORIENTATION_HORIZONTAL) getValueWidth(i) else getValueHeight(
+                        i
+                    )
                 var margin = 0f
                 if (i == size - 1) {
                     margin = 0f
@@ -168,7 +163,6 @@ abstract class PickScrollView<T> : SimpleView {
                         it.drawColor(Color.TRANSPARENT)
                         it.drawRect(width / 4f, 0f, 3 * width / 4f, height * 1f, mMaskingPaint)
                     }
-
                 }
             }
         }
@@ -184,14 +178,15 @@ abstract class PickScrollView<T> : SimpleView {
         sumWidth = 0f
 
         for (i in 0 until size) {
-            val itemW = getValueWidth(i)
+            val itemW =
+                if (orientation == ORIENTATION_HORIZONTAL) getValueWidth(i) else getValueHeight(i)
             var margin = 0f
             if (i == size - 1) {
                 margin = 0f
             } else {
                 margin = getItemMargin(w * 1f, itemW)
             }
-            if (sumWidth - moveLength > width) continue
+            if (sumWidth - moveLength > w) continue
             sumWidth += itemW + margin
             if (sumWidth < moveLength) {
 
@@ -238,13 +233,9 @@ abstract class PickScrollView<T> : SimpleView {
     }
 
     fun getItemMargin(w: Float, _itemWidth: Float): Float {
-        if (orientation == ORIENTATION_HORIZONTAL) {
-            val _w: Float = (w - _itemWidth) / (showItemNum - 1)
-            val margin = _w - _itemWidth
-            if (margin > minMargin) return margin else return minMargin
-        } else {
-            return minMargin
-        }
+        val _w: Float = (w - _itemWidth) / (showItemNum - 1)
+        val margin = _w - _itemWidth
+        if (margin > minMargin) return margin else return minMargin
     }
 
     val flingDelegate: OverScroller = OverScroller(context, object : Interpolator {
@@ -375,9 +366,6 @@ abstract class PickScrollView<T> : SimpleView {
         return mPaint
     }
 
-    var orientation: Int = ORIENTATION_HORIZONTAL;
-    var currentScrollOrientation: Int = 0;
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
 
@@ -453,6 +441,27 @@ abstract class PickScrollView<T> : SimpleView {
 
     interface SelectListener<T> {
         fun onSelect(position: Int, item: T);
+    }
+
+
+
+    init {
+        this.doOnLayout {
+            indicatorPosition = if(orientation == ORIENTATION_HORIZONTAL) width / 2f else height/2f
+        }
+        positionAnimator.addUpdateListener {
+            var animatedValue = it.animatedValue
+            if (animatedValue is Float) {
+                moveLength = animatedValue
+                invalidate()
+            }
+        }
+        mPaint = getPorterDuffXferPaint()
+        mMaskingPaint.isAntiAlias = true
+        mMaskingPaint.color = Color.GREEN
+        if (enableInitializeNotifySelectedItem) {
+            selectPosition(0, false)
+        }
     }
 
 }
