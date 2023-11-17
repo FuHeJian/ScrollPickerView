@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.fhj.mvi_demo"
-        minSdk = 29
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -18,6 +18,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndkVersion = "26.0.10792818"
+
+        ndk {
+            abiFilters.clear()
+            abiFilters.addAll(arrayListOf("arm64-v8a"))
+        }
     }
 
     externalNativeBuild {
@@ -42,11 +47,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures{
+    buildFeatures {
         dataBinding = true
         viewBinding = true
     }
-    dataBinding{
+    dataBinding {
         this.enable = true
         this.addDefaultAdapters = true
     }
@@ -58,6 +63,11 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.mavericks)
+    implementation(libs.cameraxView)
+    implementation(libs.cameraxLifeCycle)
+    implementation(libs.cameraxcamera2)
+    implementation(libs.cameraxcore)
+    implementation(project(":extview"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

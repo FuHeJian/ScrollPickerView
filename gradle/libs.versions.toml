@@ -1,6 +1,6 @@
 [versions]
-agp = "8.2.0-alpha15"
-kotlin = "1.8.21"
+agp = "8.1.3"
+kotlin = "1.9.0"
 core-ktx = "1.10.1"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
@@ -8,6 +8,7 @@ espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.9.0"
 mavericks = "3.0.7"
+camerax = "1.2.3"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -17,7 +18,10 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 mavericks = { group = "com.airbnb.android", name = "mavericks", version.ref = "mavericks" }
-
+cameraxcore = {group = "androidx.camera",name = "camera-core",version.ref = "camerax"}
+cameraxcamera2 = {group = "androidx.camera",name = "camera-camera2",version.ref = "camerax"}
+cameraxView = {group = "androidx.camera",name = "camera-view",version.ref = "camerax"}
+cameraxLifeCycle = {group = "androidx.camera",name = "camera-lifecycle",version.ref = "camerax"}
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

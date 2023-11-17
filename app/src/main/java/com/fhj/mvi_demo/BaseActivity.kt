@@ -1,7 +1,16 @@
 package com.fhj.mvi_demo
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.provider.MediaStore
+import android.view.Surface
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.Camera
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.database.getStringOrNull
 import com.airbnb.mvrx.ActivityViewModelContext
 import com.airbnb.mvrx.InternalMavericksApi
 import com.airbnb.mvrx.Mavericks
@@ -20,6 +29,7 @@ import com.fhj.mvi_demo.m.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
@@ -31,9 +41,9 @@ private val refun = BaseActivity::em as Function2<BaseActivity, String, Any>
 
 open class BaseActivity : AppCompatActivity(), MavericksView {
 
-    init {
-        System.loadLibrary("test")
-    }
+        init {
+            System.loadLibrary("test")
+        }
 
     private val viewModel by fragmentViewModel(MainViewModel::class)
 
@@ -71,7 +81,7 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
             override operator fun provideDelegate(
                 thisRef: T,
                 property: KProperty<*>
-            ): Lazy<VM> {
+            ): Lazy<VM> {//by的初始化工作
                 return lifecycleAwareLazy(thisRef) {
                     viewModelProvider(RealMavericksStateFactory())
                         .apply { _internal(thisRef, action = { thisRef.postInvalidate() }) }
@@ -88,25 +98,48 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
     }
 
     lateinit var inflate: ActivityMainBinding;
+    lateinit var cameraX: Camera
+
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         inflate = ActivityMainBinding.inflate(layoutInflater)
 
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.ACCESS_MEDIA_LOCATION,
+                Manifest.permission.CAMERA
+            ),
+            101
+        )
+
         setContentView(inflate.root)
+        var instance = ProcessCameraProvider.getInstance(this)
+        instance.addListener({
+            var camera = instance.get()
+/*            var useCasePreview = Preview.Builder().build().also {
+                it.setSurfaceProvider(inflate.preview.surfaceProvider)
+            }*/
+//            cameraX =
+//                camera.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, useCasePreview)
+        }, ContextCompat.getMainExecutor(this))
 
-        var coroutineScope = CoroutineScope(Dispatchers.IO)
+        var coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        coroutineScope.launch {
-            getRe()
+        inflate.button.setOnClickListener {
+            coroutineScope.launch {
+                println("结果" + getRe())
+            }
         }
-
-        val p = refun(this, "")
 
     }
 
-
-    fun getRe() = "hello"
+    fun getRe() = op(getAVideoPath(),inflate.preview.holder.surface);
 
     override fun onResume() {
         super.onResume()
@@ -116,6 +149,36 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
 
     }
 
-    external fun op(): Int;
+    /**
+     * 随机获取一个视频
+     */
+    fun getAVideoPath(): String {
+//        var videoUri = MediaStore.getMediaUri(this, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+
+        MediaStore.Video.Media.EXTERNAL_CONTENT_URI?.let {
+            var query = contentResolver.query(
+                it,
+                arrayOf(MediaStore.Video.VideoColumns.DATA),
+                null,
+                null,
+                MediaStore.Video.DEFAULT_SORT_ORDER
+            )
+            query?.let {
+                if (it.count > 0) {
+                    var random = Random(System.currentTimeMillis()).nextInt(it.count)
+                    it.moveToPosition(random)
+                    var columnCount = it.columnCount
+                    for (i in columnCount/2 until columnCount) {
+                        var s = it.getStringOrNull(i) ?: ""
+                        println(it.getColumnName(i) + "==结果==" + s)
+                        return s;
+                    }
+                }
+            }
+        }
+        return ""
+    }
+
+    external fun op(p: String,surface: Surface): Int;
 
 }

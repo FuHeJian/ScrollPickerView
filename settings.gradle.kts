@@ -19,4 +19,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MVI_demo"
 include(":app")
- 
+include(":extview")
