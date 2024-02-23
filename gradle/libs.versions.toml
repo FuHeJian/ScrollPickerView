@@ -9,7 +9,9 @@ appcompat = "1.6.1"
 material = "1.9.0"
 mavericks = "3.0.7"
 camerax = "1.2.3"
-
+webkit = "1.8.0"
+swipfresh = "1.1.0"
+glide = "5.0.0-rc01"
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -22,7 +24,10 @@ cameraxcore = {group = "androidx.camera",name = "camera-core",version.ref = "cam
 cameraxcamera2 = {group = "androidx.camera",name = "camera-camera2",version.ref = "camerax"}
 cameraxView = {group = "androidx.camera",name = "camera-view",version.ref = "camerax"}
 cameraxLifeCycle = {group = "androidx.camera",name = "camera-lifecycle",version.ref = "camerax"}
+androidXWebkit = {group = "androidx.webkit",name = "webkit",version.ref = "webkit"}
+swipfresh = {group = "androidx.swiperefreshlayout",name = "swiperefreshlayout",version.ref = "swipfresh" }
+glide = {group = "com.github.bumptech.glide",name = "glide",version.ref = "glide"}
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android",  version.ref = "kotlin" }
 

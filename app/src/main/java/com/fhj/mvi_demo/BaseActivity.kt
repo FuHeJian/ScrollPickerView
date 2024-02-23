@@ -2,14 +2,15 @@ package com.fhj.mvi_demo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Surface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.database.getStringOrNull
 import com.airbnb.mvrx.ActivityViewModelContext
 import com.airbnb.mvrx.InternalMavericksApi
@@ -26,12 +27,10 @@ import com.airbnb.mvrx.lifecycleAwareLazy
 import com.airbnb.mvrx.withState
 import com.fhj.mvi_demo.databinding.ActivityMainBinding
 import com.fhj.mvi_demo.m.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+
 
 /**
 @author: fuhejian
@@ -41,11 +40,13 @@ private val refun = BaseActivity::em as Function2<BaseActivity, String, Any>
 
 open class BaseActivity : AppCompatActivity(), MavericksView {
 
-        init {
-            System.loadLibrary("test")
-        }
+    init {
+        System.loadLibrary("test")
+    }
 
     private val viewModel by fragmentViewModel(MainViewModel::class)
+
+    private val videoController by VideoControler()
 
     @OptIn(InternalMavericksApi::class)
     inline fun <T, reified VM : MavericksViewModel<S>, reified S : MavericksState> T.fragmentViewModel(
@@ -100,9 +101,30 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
     lateinit var inflate: ActivityMainBinding;
     lateinit var cameraX: Camera
 
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(TAG, "1-onRestart: ")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "1-onStart: ")
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "1-onResume: ")
+    }
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, "1-onCreate: ")
 
         inflate = ActivityMainBinding.inflate(layoutInflater)
 
@@ -114,36 +136,78 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.ACCESS_MEDIA_LOCATION,
                 Manifest.permission.CAMERA
-            ),
-            101
-        )
+            ), 101)
 
         setContentView(inflate.root)
-        var instance = ProcessCameraProvider.getInstance(this)
+/*        var instance = ProcessCameraProvider.getInstance(this)
         instance.addListener({
             var camera = instance.get()
-/*            var useCasePreview = Preview.Builder().build().also {
-                it.setSurfaceProvider(inflate.preview.surfaceProvider)
-            }*/
+            *//*            var useCasePreview = Preview.Builder().build().also {
+                            it.setSurfaceProvider(inflate.preview.surfaceProvider)
+                        }*//*
 //            cameraX =
 //                camera.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, useCasePreview)
         }, ContextCompat.getMainExecutor(this))
 
         var coroutineScope = CoroutineScope(Dispatchers.Main)
 
-        inflate.button.setOnClickListener {
-            coroutineScope.launch {
-                println("结果" + getRe())
+        *//*inflate.button.setOnClickListener {
+                    coroutineScope.launch {
+                        println("结果" + getRe())
+                    }
+        }*//*
+
+        inflate.Carousel.setAdapter(object : Carousel.Adapter {
+
+            override fun count() = 5
+
+            override fun populate(view: View?, index: Int) {
+                Log.d(TAG, "populate index = " + index)
+                view?.setBackgroundColor(getViewColor(index))
             }
+
+            override fun onNewItem(index: Int) {
+                Log.d(TAG, "onNewItem index = " + index)
+                *//*              referenceList.forEach{
+                                  Log.d(TAG, "referenceList: 获取值_列表 " + it + ",value = " + it.get())
+                              }*//*
+            }
+        })
+        videoController.init();
+        inflate.TODO.setOnClickListener{
+            CoroutineScope(Dispatchers.IO).launch {
+                var re = videoController.loadVideo(inflate.surfaceView.holder.surface,getAVideoPath())
+                withContext(Dispatchers.Main){
+                    Toast.makeText(this@BaseActivity, videoController.parseErrorCode(re), Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        }*/
+        inflate.TODO.extend()
+
+        inflate.openFile.setOnClickListener{
+            /*val file = File(getAVideoPath())
+            file.readBytes()*/
+            startActivity(Intent(this,SecondActivity::class.java))
         }
 
     }
 
-    fun getRe() = op(getAVideoPath(),inflate.preview.holder.surface);
+    val TAG = "日志"
 
-    override fun onResume() {
-        super.onResume()
+    fun getViewColor(position: Int): Int {
+        when (position) {
+            0 -> return Color.RED
+            1 -> return Color.BLUE
+            2 -> return Color.GREEN
+            3 -> return Color.CYAN
+            4 -> return Color.YELLOW
+            else -> return Color.BLACK
+        }
     }
+
+    //fun getRe() = op(getAVideoPath(),inflate.preview.holder.surface);
+    fun getRe() = 1
 
     fun em(s: String) {
 
@@ -168,7 +232,7 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
                     var random = Random(System.currentTimeMillis()).nextInt(it.count)
                     it.moveToPosition(random)
                     var columnCount = it.columnCount
-                    for (i in columnCount/2 until columnCount) {
+                    for (i in columnCount / 2 until columnCount) {
                         var s = it.getStringOrNull(i) ?: ""
                         println(it.getColumnName(i) + "==结果==" + s)
                         return s;
@@ -176,9 +240,24 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
                 }
             }
         }
+
         return ""
     }
 
-    external fun op(p: String,surface: Surface): Int;
+    external fun op(p: String, surface: Surface?): Int
 
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "1-onStop: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "1-onPause: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "1-onDestroy: ")
+    }
 }

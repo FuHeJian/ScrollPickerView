@@ -57,8 +57,8 @@ class SuctionEdge() {
     val animatorY = ObjectAnimator()
     val inter = OvershootInterpolator()
     init {
-        animatorX.propertyName = "translationX"
-        animatorY.propertyName = "translationY"
+        animatorX.setPropertyName("translationX")
+        animatorY.setPropertyName("translationY")
         animatorX.duration  =300L
         animatorY.duration  =300L
         animatorX.interpolator = inter
@@ -72,8 +72,8 @@ class SuctionEdge() {
     private var touchListener = object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onScroll(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
+            e1: MotionEvent,
+            e2: MotionEvent,
             distanceX: Float,
             distanceY: Float
         ): Boolean {
@@ -90,7 +90,7 @@ class SuctionEdge() {
             return true;
         }
 
-        override fun onDown(e: MotionEvent?): Boolean {
+        override fun onDown(e: MotionEvent): Boolean {
             lastX = 0f
             lastY = 0f
             return true

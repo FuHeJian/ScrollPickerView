@@ -127,7 +127,7 @@ abstract class PickScrollView<T> : SimpleView {
         }
     }
 
-    var lastSelectPosition = 0
+    private var lastSelectPosition = 0
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -159,7 +159,10 @@ abstract class PickScrollView<T> : SimpleView {
                 }
                 sumWidth += itemW + margin
                 if (i == size - 1) {
-                    moveLengthMax = (sumWidth - w + ((w / 2 - itemW / 2).coerceAtLeast(0f))).coerceAtLeast(moveLengthMin)
+                    moveLengthMax =
+                        (sumWidth - w + ((w / 2 - itemW / 2).coerceAtLeast(0f))).coerceAtLeast(
+                            moveLengthMin
+                        )
                 }
             }
             val sumW = moveLengthMax + moveLengthMin.absoluteValue + w
@@ -184,6 +187,8 @@ abstract class PickScrollView<T> : SimpleView {
         var offset_left = 0f
         var offset_right = 0f
         var offset = 0f
+
+        lastSelectPosition = nearIndicatorPosition
         lastSelectPosition.let {
             offset =
                 (dataPosition.get(it) ?: 0f) - moveLength -
@@ -200,28 +205,6 @@ abstract class PickScrollView<T> : SimpleView {
                     offset.absoluteValue / ((dataPosition.get(it + 1)
                         ?: 0f) - (dataPosition.get(it) ?: 0f))
             }
-
-            if (offset_left.absoluteValue >= 1 || offset_right.absoluteValue >= 1) {//重新计算一次
-                lastSelectPosition = nearIndicatorPosition
-                lastSelectPosition.let {
-                    offset =
-                        (dataPosition.get(it) ?: 0f) - moveLength -
-                                indicatorPosition
-
-                    if (offset > 0 && dataPosition.contains(it - 1)) {
-                        offset_left =
-                            offset.absoluteValue / ((dataPosition.get(it - 1) ?: 0f)
-                                    - (dataPosition.get(it) ?: 0f))
-                    }
-
-                    if (offset < 0 && dataPosition.contains(it + 1)) {
-                        offset_right =
-                            offset.absoluteValue / ((dataPosition.get(it + 1)
-                                ?: 0f) - (dataPosition.get(it) ?: 0f))
-                    }
-                }
-            }
-
         }
 
         for (i in 0 until size) {
@@ -380,7 +363,7 @@ abstract class PickScrollView<T> : SimpleView {
             return true
         }
 
-        override fun onScroll(p0: MotionEvent?, p1: MotionEvent, sX: Float, sY: Float): Boolean {
+        override fun onScroll(p0: MotionEvent, p1: MotionEvent, sX: Float, sY: Float): Boolean {
             if (currentScrollOrientation == 0) {
                 currentScrollOrientation =
                     if (Math.abs(sX) >= Math.abs(sY)) ORIENTATION_HORIZONTAL else ORIENTATION_VERTICAL
@@ -406,7 +389,7 @@ abstract class PickScrollView<T> : SimpleView {
         }
 
         override fun onFling(
-            p0: MotionEvent?,
+            p0: MotionEvent,
             p1: MotionEvent,
             velocityX: Float,
             velocityY: Float
@@ -414,8 +397,8 @@ abstract class PickScrollView<T> : SimpleView {
             lastFlingCurrentXY = 0
             positionAnimator.cancel()
             flingStarted = true
-            var min =Int.MIN_VALUE
-            var max =Int.MAX_VALUE
+            var min = Int.MIN_VALUE
+            var max = Int.MAX_VALUE
 
             flingDelegate.fling(
                 0,
@@ -527,15 +510,14 @@ abstract class PickScrollView<T> : SimpleView {
     fun selectPosition(position: Int, animate: Boolean) {
 
         if (data.isEmpty() || position < 0 || position >= data.size) return
-
         doOnDrawLater {
             if (currentPosition != position) {
+                currentPosition = position
                 mListener?.let {
                     it.onSelect(this, position, getSelectedItem(position))
                 }
-                currentPosition = position
+                lastSelectPosition = position
             }
-            lastSelectPosition = position
             if (animate) {
                 animateToPosition(position)
             } else {

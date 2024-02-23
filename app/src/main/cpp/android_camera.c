@@ -56,7 +56,7 @@
 
 ANativeWindow * sur;
 typedef struct AndroidCameraCtx {
-    const AVClass *class;
+    const AVClass *class;//第一个必须是AVClass，这里的class值等于AVInputFormat.priv_class
 
     int requested_width;
     int requested_height;
@@ -408,7 +408,7 @@ static void image_available(void *context, AImageReader *reader)
     }
 
     // Determine actual image format
-    if (!atomic_load(&ctx->got_image_format)) {
+    if (!atomic_load(&ctx->got_image_format)) {\
         ret = get_image_format(avctx, image);
         if (ret < 0) {
             av_log(avctx, AV_LOG_ERROR,
@@ -460,7 +460,8 @@ static void image_available(void *context, AImageReader *reader)
                             image_linestrides, ctx->image_format,
                             ctx->width, ctx->height, 32);
 
-    ret = av_thread_message_queue_send(ctx->input_queue, &pkt, AV_THREAD_MESSAGE_NONBLOCK);
+//    ret = av_thread_message_queue_send(ctx->input_queue, &pkt, AV_THREAD_MESSAGE_NONBLOCK);
+    ret = av_thread_message_queue_send(ctx->input_queue, &pkt, 0);
 
 error:
     if (ret < 0) {
@@ -841,10 +842,10 @@ static int android_camera_read_packet(AVFormatContext *avctx, AVPacket *pkt)
 #define OFFSET(x) offsetof(AndroidCameraCtx, x)
 #define DEC AV_OPT_FLAG_DECODING_PARAM
 static const AVOption options[] = {
-    { "video_size", "set video size given as a string such as 640x480 or hd720", OFFSET(requested_width), AV_OPT_TYPE_IMAGE_SIZE, {.str = "hd1080"}, 0, 0, DEC },
+    { "video_size", "set video size given as a string such as 640x480 or hd720", OFFSET(requested_width), AV_OPT_TYPE_IMAGE_SIZE, {.str = "4k"}, 0, 0, DEC },
     { "framerate", "set video frame rate", OFFSET(framerate), AV_OPT_TYPE_VIDEO_RATE, {.str = "30"}, 0, INT_MAX, DEC },
     { "camera_index", "set index of camera to use", OFFSET(camera_index), AV_OPT_TYPE_INT, {.i64 = 0}, 0, INT_MAX, DEC },
-    { "input_queue_size", "set maximum number of frames to buffer", OFFSET(input_queue_size), AV_OPT_TYPE_INT, {.i64 = 20}, 0, INT_MAX, DEC },
+    { "input_queue_size", "set maximum number of frames to buffer", OFFSET(input_queue_size), AV_OPT_TYPE_INT, {.i64 = 200}, 0, INT_MAX, DEC },
     { NULL },
 };
 

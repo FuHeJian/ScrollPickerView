@@ -12,16 +12,23 @@ import kotlin.reflect.KProperty
  */
 class MainViewModel : MavericksViewModel<MainState> {
 
+
+
     operator fun getValue(baseActivity: BaseActivity, property: KProperty<*>): MainViewModel {
         println("getValue调用")
         return this;
     }
 
-    constructor(initialState: MainState) : super(
-        initialState
-    )
+
 
     var k = 1;
+
+    constructor(
+        initialState: MainState
+    ) : super(initialState) {
+
+    }
+
     fun setK() {
         k++;
         update();

@@ -6,8 +6,9 @@ plugins {
 
 android {
     namespace = "com.fhj.mvi_demo"
-    compileSdk = 33
-
+    compileSdk = 34
+    flavorDimensions.add("111")
+    flavorDimensions.add("222")
     defaultConfig {
         applicationId = "com.fhj.mvi_demo"
         minSdk = 26
@@ -23,6 +24,13 @@ android {
             abiFilters.clear()
             abiFilters.addAll(arrayListOf("arm64-v8a"))
         }
+
+        externalNativeBuild {
+            cmake {
+                this.cppFlags("-fdeclspec")
+            }
+        }
+
     }
 
     externalNativeBuild {
@@ -40,6 +48,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -67,7 +76,10 @@ dependencies {
     implementation(libs.cameraxLifeCycle)
     implementation(libs.cameraxcamera2)
     implementation(libs.cameraxcore)
+    implementation(libs.androidXWebkit)
+    implementation(libs.glide)
     implementation(project(":extview"))
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0-alpha11")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

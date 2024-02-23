@@ -5,7 +5,6 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.ext.extview.SuctionEdge
 
 /**
 @author: fuhejian
@@ -31,9 +30,9 @@ class SucView:View {
             constructor(context: Context, attr: AttributeSet?) : this(context, attr, 0, 0)
             constructor(context: Context) : this(context, null, 0, 0)
 
-    var sucEdge = SuctionEdge()
+//    var sucEdge = SuctionEdge()
     init {
-        sucEdge.suctionView = this
+//        sucEdge.suctionView = this
     }
 
     var cacheR = Rect()
@@ -43,10 +42,11 @@ class SucView:View {
         val p = parent as View
 
         cacheR.set(p.paddingLeft,p.paddingTop,p.width - p.paddingRight,p.bottom- p.paddingBottom)
-        sucEdge.rect = cacheR
+//        sucEdge.rect = cacheR
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return sucEdge.process(event!!)
+//        return sucEdge.process(event!!)
+        return true
     }
 }

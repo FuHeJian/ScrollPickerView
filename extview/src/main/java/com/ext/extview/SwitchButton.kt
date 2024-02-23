@@ -161,36 +161,36 @@ class SwitchButton : LinearLayout {
     }
 
     val eventDelegate = GestureDetector(this.context, object : GestureDetector.OnGestureListener {
-        override fun onDown(e: MotionEvent?) = true
+        override fun onDown(e: MotionEvent) = true
 
-        override fun onShowPress(e: MotionEvent?) {
+        override fun onShowPress(e: MotionEvent) {
         }
 
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
             var s = if (selectPosition == 0) 1 else 0
             selectPosition(s)
             return true
         }
 
         override fun onScroll(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
+            e1: MotionEvent,
+            e2: MotionEvent,
             distanceX: Float,
             distanceY: Float
         ) = false
 
-        override fun onLongPress(e: MotionEvent?) {
+        override fun onLongPress(e: MotionEvent) {
         }
 
         override fun onFling(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
+            e1: MotionEvent,
+            e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ) = false
     })
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         return eventDelegate.onTouchEvent(event)
     }
 
