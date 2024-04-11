@@ -69,14 +69,21 @@ void log_callback(void *obj, int status, const char *info, va_list val) {
                          info, val);
 }
 
+
+jbyteArray getByteAddress(JNIEnv *env, jobject thiz, jobject objBuffer){
+    void * add = env->GetDirectBufferAddress(objBuffer);
+}
+
 JNINativeMethod VideoControlerNativeMethod[] = {
         {"init",           "()V",                                         (void *) init},
         {"loadVideo",      "(Landroid/view/Surface;Ljava/lang/String;)I", (void *) loadVideo},
         {"parseErrorCode", "(I)Ljava/lang/String;",                       (void *) parseErrorCode},
 };
 
+
 static int registerNativeMethods(JNIEnv *env) {
     int result = -1;
+    jbyteArray arr = env->NewByteArray(2);
     jclass class_hello = env->FindClass("com/fhj/mvi_demo/BaseActivity");
     if (env->RegisterNatives(class_hello, nativeMethods,
                              sizeof(nativeMethods) / sizeof(nativeMethods[0])) == JNI_OK) {

@@ -48,7 +48,9 @@
         </activity>
 
         <activity android:name=".SecondActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/ActivityTranslucence"
+            >
         </activity>
 
     </application>

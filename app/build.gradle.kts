@@ -4,15 +4,16 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
+
 android {
+
     namespace = "com.fhj.mvi_demo"
     compileSdk = 34
-    flavorDimensions.add("111")
-    flavorDimensions.add("222")
+
     defaultConfig {
         applicationId = "com.fhj.mvi_demo"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -48,6 +49,7 @@ android {
             )
         }
     }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

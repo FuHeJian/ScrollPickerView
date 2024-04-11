@@ -1,16 +1,18 @@
 package com.fhj.mvi_demo
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.AttributeSet
 import android.util.Log
 import android.view.Surface
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
-import androidx.core.app.ActivityCompat
+import androidx.constraintlayout.helper.widget.Carousel
 import androidx.core.database.getStringOrNull
 import com.airbnb.mvrx.ActivityViewModelContext
 import com.airbnb.mvrx.InternalMavericksApi
@@ -27,6 +29,12 @@ import com.airbnb.mvrx.lifecycleAwareLazy
 import com.airbnb.mvrx.withState
 import com.fhj.mvi_demo.databinding.ActivityMainBinding
 import com.fhj.mvi_demo.m.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Executors
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -98,11 +106,46 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
         }
     }
 
-    lateinit var inflate: ActivityMainBinding;
+    var lock = ReentrantLock()
+    var notEmpty = lock.newCondition()
+    var con = true
+
+    suspend fun lockTest() {
+        lock.lock()
+        try {
+            while (true) {
+                if (con) {
+                    con = false
+                    notEmpty.signal()
+                    notEmpty.await()
+                }
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
+    suspend fun lockTest2() {
+        lock.lock()
+        try {
+            while (true) {
+                if (!con) {
+                    con = true
+                    notEmpty.signal()
+                    notEmpty.await()
+                }
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
+
+
+    lateinit var inflate: ActivityMainBinding
     lateinit var cameraX: Camera
 
     override fun onRestart() {
         super.onRestart()
+        var q = ArrayList<Int>();
         Log.d(TAG, "1-onRestart: ")
     }
 
@@ -128,34 +171,29 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
 
         inflate = ActivityMainBinding.inflate(layoutInflater)
 
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.ACCESS_MEDIA_LOCATION,
-                Manifest.permission.CAMERA
-            ), 101)
+//        ActivityCompat.requestPermissions(
+//            this,
+//            arrayOf(
+//                Manifest.permission.READ_MEDIA_VIDEO,
+//                Manifest.permission.READ_EXTERNAL_STORAGE,
+//                Manifest.permission.READ_MEDIA_IMAGES,
+//                Manifest.permission.ACCESS_MEDIA_LOCATION,
+//                Manifest.permission.CAMERA
+//            ), 101
+//        )
 
         setContentView(inflate.root)
-/*        var instance = ProcessCameraProvider.getInstance(this)
-        instance.addListener({
-            var camera = instance.get()
-            *//*            var useCasePreview = Preview.Builder().build().also {
+        /*        var instance = ProcessCameraProvider.getInstance(this)
+                instance.addListener({
+                    var camera = instance.get()
+                    *//*            var useCasePreview = Preview.Builder().build().also {
                             it.setSurfaceProvider(inflate.preview.surfaceProvider)
                         }*//*
 //            cameraX =
 //                camera.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, useCasePreview)
-        }, ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(this))*/
 
-        var coroutineScope = CoroutineScope(Dispatchers.Main)
-
-        *//*inflate.button.setOnClickListener {
-                    coroutineScope.launch {
-                        println("结果" + getRe())
-                    }
-        }*//*
+        var coroutineScope = CoroutineScope(Dispatchers.IO)
 
         inflate.Carousel.setAdapter(object : Carousel.Adapter {
 
@@ -168,28 +206,52 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
 
             override fun onNewItem(index: Int) {
                 Log.d(TAG, "onNewItem index = " + index)
-                *//*              referenceList.forEach{
-                                  Log.d(TAG, "referenceList: 获取值_列表 " + it + ",value = " + it.get())
-                              }*//*
             }
         })
+        /*      val sh = SharedMemory.create("",1)
+                sh.mapReadOnly();
+                MemoryFile                        */
+        val thPools = Executors.newCachedThreadPool();
         videoController.init();
-        inflate.TODO.setOnClickListener{
+        inflate.TODO.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                var re = videoController.loadVideo(inflate.surfaceView.holder.surface,getAVideoPath())
-                withContext(Dispatchers.Main){
-                    Toast.makeText(this@BaseActivity, videoController.parseErrorCode(re), Toast.LENGTH_SHORT).show()
+                var re =
+                    videoController.loadVideo(inflate.surfaceView.holder.surface, getAVideoPath())
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@BaseActivity,
+                        videoController.parseErrorCode(re),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-
             }
-        }*/
+        }
         inflate.TODO.extend()
 
-        inflate.openFile.setOnClickListener{
-            /*val file = File(getAVideoPath())
-            file.readBytes()*/
-            startActivity(Intent(this,SecondActivity::class.java))
+        inflate.openFile.setOnClickListener {
+
+            coroutineScope.launch {
+                lockTest()
+
+            }
+            coroutineScope.launch {
+                lockTest2();
+            }
+
         }
+
+    }
+
+    enum class dddd{
+
+        PPPP(""),
+        QQQQQ("");
+
+        constructor(name: String, ordinal: Int) : this(name)
+
+        constructor(name: String)
+
+
 
     }
 
@@ -240,8 +302,17 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
                 }
             }
         }
-
+        View.generateViewId();
         return ""
+    }
+
+    override fun onCreateView(
+        parent: View?,
+        name: String,
+        context: Context,
+        attrs: AttributeSet
+    ): View? {
+        return super.onCreateView(parent, name, context, attrs)
     }
 
     external fun op(p: String, surface: Surface?): Int
@@ -260,4 +331,6 @@ open class BaseActivity : AppCompatActivity(), MavericksView {
         super.onDestroy()
         Log.d(TAG, "1-onDestroy: ")
     }
+
+
 }

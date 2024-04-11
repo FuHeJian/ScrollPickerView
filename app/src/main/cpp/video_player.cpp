@@ -383,6 +383,9 @@ jint loadVideo(JNIEnv *env, jobject thiz, jobject surface, jstring jPath) {
 
 void *loadVideoThread(void *tc) {
 
+    JavaVM *_jvm;
+    JNIEnv *_env;
+
     pthread_mutex_lock(&mutex);
     ThreadContext *threadContext = reinterpret_cast<ThreadContext *>(tc);
     JavaVM *jvm = threadContext->jvm;
@@ -603,11 +606,15 @@ void *loadVideoThread(void *tc) {
                 return re;
             }*/
             bool rere = true;
-
+            
             while (!av_read_frame(avformatcontext, readPacket) && !videoInfo->threadContext->end) {
 
                 __android_log_print(ANDROID_LOG_INFO, "日志", "当前解析类型%d",
                                     (int) avformatcontext->streams[readPacket->stream_index]->codecpar->codec_type);
+                if (remainTime > 0) {
+                    av_usleep(remainTime);
+                }
+                time = av_gettime_relative();//av_gettime_relative获取的是开机后的微妙时间
                 if (readPacket->stream_index != seekStreamIndex) {
                     //解析音频
                     if (audioQueue) {
@@ -642,12 +649,8 @@ void *loadVideoThread(void *tc) {
                     skipFrame--;
                     continue;
                 }*/
-                if (remainTime > 0) {
-                    av_usleep(remainTime);
-                }
                 readPacket->time_base = avformatcontext->streams[seekStreamIndex]->time_base;
 
-                time = av_gettime_relative();//av_gettime_relative获取的是开机后的微妙时间
                 re = ANativeWindow_lock(window, &buffer, NULL);
                 if (re != 0) {
                     continue;
@@ -810,3 +813,4 @@ jstring parseErrorCode(JNIEnv *env, jobject thiz, jint errorCode) {
     jstring javaString = env->NewStringUTF(re);
     return javaString;
 }
+
